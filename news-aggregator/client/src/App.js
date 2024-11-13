@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; // שימוש ב-Routes במקום Switch
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import './App.css'; // כולל את הגדרת העיצובים
+import NewsFeed from './NewsFeed';
+
 
 // רכיב לטופס רישום
 const RegisterForm = ({ onSubmit }) => {
@@ -8,6 +11,8 @@ const RegisterForm = ({ onSubmit }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [preferences, setPreferences] = useState('');
+  const [error, setError] = useState(''); // ניהול הודעת שגיאה
+  const navigate = useNavigate(); // השתמש ב-useNavigate בתוך רכיב שמצוי בתוך Router
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,18 +26,22 @@ const RegisterForm = ({ onSubmit }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to register');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to register');
       }
 
       const data = await response.json();
       onSubmit(data);
+      navigate('/newsFeed');
     } catch (error) {
+      setError(error.message); // הגדרת הודעת השגיאה במצב
       console.error('Error registering user:', error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+       <div>{error && <p className="error">{error}</p>}</div> 
       <div>
         <label>Name:</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -58,6 +67,8 @@ const RegisterForm = ({ onSubmit }) => {
 const LoginForm = ({ onSubmit }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // ניהול הודעת שגיאה
+  const navigate = useNavigate(); // השתמש ב-useNavigate בתוך רכיב שמצוי בתוך Router
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -71,18 +82,22 @@ const LoginForm = ({ onSubmit }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Invalid credentials');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Invalid credentials');
       }
 
       const data = await response.json();
       onSubmit(data);
+      navigate('/newsFeed');
     } catch (error) {
+      setError(error.message); // הגדרת הודעת השגיאה במצב
       console.error('Error logging in:', error);
     }
   };
 
   return (
     <form onSubmit={handleSubmit}>
+       <div>{error && <p className="error">{error}</p>}</div> 
       <div>
         <label>Email:</label>
         <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
@@ -99,7 +114,7 @@ const LoginForm = ({ onSubmit }) => {
 // רכיב ראשי
 function App() {
   const [userData, setUserData] = useState(null);
-
+  
   const handleUserSubmit = (user) => {
     setUserData(user);
   };
@@ -108,6 +123,7 @@ function App() {
     <Router>
       <div className="App">
         <h1>Personalized News Aggregator</h1>
+        
         {!userData ? (
           <Routes>
             <Route path="/login" element={
@@ -128,6 +144,8 @@ function App() {
                 </div>
               </div>
             } />
+            
+            <Route path="/newsFeed" element={<NewsFeed/>} />
           </Routes>
         ) : (
           <div>

@@ -31,7 +31,7 @@ app.post('/register', async (req, res) => {
     await user.save();
     res.status(201).send(user);
   } catch (error) {
-    res.status(400).send(error.message);
+    res.status(400).json({ error: 'The email already exists in the system' }); // שליחת הודעת שגיאה בצורת JSON
   }
 });
 
@@ -43,7 +43,7 @@ app.post('/login', async (req, res) => {
   if (user && await bcrypt.compare(password, user.password)) {
     res.send(user);
   } else {
-    res.status(401).send('Invalid credentials');
+    res.status(401).json({ error: 'The email or password is incorrect' }); // שליחת שגיאה עם פירוט בצורת JSON
   }
 });
 
