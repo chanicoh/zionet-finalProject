@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom'; // שימוש ב-Routes במקום Switch
 import './App.css'; // כולל את הגדרת העיצובים
 
 // רכיב לטופס רישום
@@ -98,45 +99,43 @@ const LoginForm = ({ onSubmit }) => {
 // רכיב ראשי
 function App() {
   const [userData, setUserData] = useState(null);
-  const [isRegister, setIsRegister] = useState(false);
 
   const handleUserSubmit = (user) => {
     setUserData(user);
   };
 
-  const toggleForm = () => {
-    setIsRegister(!isRegister);
-  };
-
   return (
-    <div className="App">
-      <h1>Personalized News Aggregator</h1>
-      {!userData ? (
-        <div>
-          {isRegister ? (
-            <div>
-              <h3>Register</h3>
-              <RegisterForm onSubmit={handleUserSubmit} />
-              <div className="switch">
-                <a onClick={toggleForm}>Already have an account? Login</a>
+    <Router>
+      <div className="App">
+        <h1>Personalized News Aggregator</h1>
+        {!userData ? (
+          <Routes>
+            <Route path="/login" element={
+              <div>
+                <h3>Login</h3>
+                <LoginForm onSubmit={handleUserSubmit} />
+                <div className="switch">
+                  <Link to="/register">Don't have an account? Register</Link>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div>
-              <h3>Login</h3>
-              <LoginForm onSubmit={handleUserSubmit} />
-              <div className="switch">
-                <a onClick={toggleForm}>Don't have an account? Register</a>
+            } />
+            <Route path="/register" element={
+              <div>
+                <h3>Register</h3>
+                <RegisterForm onSubmit={handleUserSubmit} />
+                <div className="switch">
+                  <Link to="/login">Already have an account? Login</Link>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      ) : (
-        <div>
-          <h3>Welcome, {userData.name}</h3>
-        </div>
-      )}
-    </div>
+            } />
+          </Routes>
+        ) : (
+          <div>
+            <h3>Welcome, {userData.name}</h3>
+          </div>
+        )}
+      </div>
+    </Router>
   );
 }
 

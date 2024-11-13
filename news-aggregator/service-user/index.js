@@ -8,12 +8,21 @@ require('dotenv').config();
 const app = express();
 app.use(bodyParser.json());
 
+const cors = require('cors');
+
+app.use(cors({
+  origin: 'http://localhost:3000', // הגדרת כתובת הלקוח שלך
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'], // אם אתה שולח כותרת Content-Type
+}));
+
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 // Register User
 app.post('/register', async (req, res) => {
+  console.log(req.body);  // הדפסת בקשה בצד השרת
   const { name, email, password, preferences } = req.body;
   const hashedPassword = await bcrypt.hash(password, 10);
   const user = new User({ fullName: name, email, password: hashedPassword, preferences });
