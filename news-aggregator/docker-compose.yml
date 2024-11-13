@@ -1,0 +1,41 @@
+
+services:
+  mongodb:
+    image: mongo 
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    networks:
+      - news-network
+
+  service-user:
+    build: 
+      context: ./service-user
+      dockerfile: Dockerfile
+    container_name: service-user
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/userdb
+      - PORT=5000
+    depends_on:
+      - mongodb
+    networks:
+      - news-network
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=service-user"
+      - "dapr.io/app-port=5000"
+
+  dapr_user:
+    image: "daprio/daprd:latest"
+    command: ["./daprd", "-app-id", "service-user", "-app-port", "5000"]
+    networks:
+      - news-network
+    depends_on:
+      - "service-user"
+
+  
+networks:
+  news-network:
+    driver: bridge
