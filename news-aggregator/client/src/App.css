@@ -3,7 +3,6 @@
   margin: 0;
   padding: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 100vh;
@@ -63,4 +62,28 @@ button:hover {
 
 .switch a:hover {
   text-decoration: underline;
+}
+
+.login{
+  width: 100px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 300px
+}
+
+.Register{
+  width: 100px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 300px;
+  margin-top: 30px;
+  
 }

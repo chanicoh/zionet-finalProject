@@ -5,6 +5,17 @@ services:
     container_name: mongodb
     ports:
       - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    
+    networks:
+      - news-network
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  # פור לממשק ניהול
+      - "5672:5672"    # פור לתקשורת עם השירותים
     networks:
       - news-network
 
@@ -20,6 +31,7 @@ services:
       - PORT=5000
     depends_on:
       - mongodb
+      - rabbitmq 
     networks:
       - news-network
     labels:
@@ -34,8 +46,36 @@ services:
       - news-network
     depends_on:
       - "service-user"
-
   
+  service-news:
+    build:
+      context: ./service-news
+      dockerfile: Dockerfile
+    container_name: service-news
+    ports:
+      - "5001:5001"
+    environment:
+      - NEWS_API_KEY=b684b5f306a242509e3524c91089b088 # המפתח שלך לשירות NewsAPI
+    depends_on:
+      - rabbitmq 
+      - service-user
+    networks:
+      - news-network
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=service-news"
+      - "dapr.io/app-port=5001"
+  
+  dapr_news:
+    image: "daprio/daprd:latest"
+    command: ["./daprd", "-app-id", "service-user", "-app-port", "5001"]
+    depends_on:
+      - service-news
+    networks:
+      - news-network
+      
 networks:
   news-network:
     driver: bridge
+volumes:
+  mongo-data:
