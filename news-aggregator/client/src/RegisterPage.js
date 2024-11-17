@@ -14,7 +14,7 @@ const RegisterPage = ({ onSubmit }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const userData = { name, email, password, preferences: preferences.split(',') };
-
+    
     try {
       const response = await fetch('http://localhost:5000/register', {
         method: 'POST',
@@ -29,7 +29,11 @@ const RegisterPage = ({ onSubmit }) => {
 
       const data = await response.json();
       onSubmit(data);
-      navigate('/newsFeed');
+      //const usermail = response.data.user;
+      console.log(email);
+      console.log(data._id);
+      const userId=data._id;
+      navigate('/newsFeed' ,{ state: { userId }});
     } catch (error) {
       setError(error.message); 
       console.error('Error registering user:', error);

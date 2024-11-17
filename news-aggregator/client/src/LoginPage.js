@@ -8,6 +8,7 @@ const LoginPage = ({ onSubmit }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -27,7 +28,9 @@ const LoginPage = ({ onSubmit }) => {
 
       const data = await response.json();
       onSubmit(data);
-      navigate('/newsFeed');
+      console.log(data._id);
+      const userId=data._id;
+      navigate('/newsFeed',{ state: { userId }});
     } catch (error) {
       setError(error.message); 
       console.error('Error logging in:', error);

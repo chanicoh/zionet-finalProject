@@ -87,3 +87,178 @@ button:hover {
   margin-top: 30px;
   
 }
+
+/* NewsFeed.css */
+
+/* Container for the entire page layout */
+.news-feed-container {
+  display: flex;
+  padding: 20px;
+  justify-content: space-between;
+}
+
+/* User Info Section */
+.user-info {
+  flex: 1;
+  padding-right: 20px;
+  border-right: 1px solid #ccc;
+}
+
+.user-info h3 {
+  font-size: 24px;
+  color: #333;
+}
+
+.user-info p {
+  font-size: 16px;
+  color: #555;
+}
+
+.preferences-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.preferences-list li {
+  margin: 5px 0;
+  font-size: 16px;
+  color: #666;
+}
+
+.edit-button, .save-button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.edit-button:hover, .save-button:hover {
+  background-color: #005bb5;
+}
+
+input[type="text"] {
+  padding: 5px;
+  margin-top: 10px;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* Main container */
+.news-feed-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background-color: #f5f5f5;
+}
+
+/* Header with Welcome message */
+.header {
+  text-align: center;
+}
+
+.header h3 {
+  font-size: 24px;
+  color: #333;
+}
+/* General layout */
+.news-feed-container {
+  display: flex;
+  height: 100vh;
+}
+
+.hamburger-menu {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 10;
+}
+
+.side-menu {
+  position: fixed;
+  top: 0;
+  left: -250px; /* Hide menu initially */
+  width: 250px;
+  height: 100%;
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  transition: left 0.3s ease;
+  z-index: 5;
+}
+
+.side-menu.open {
+  left: 0; /* Show menu when open */
+}
+
+.user-info h3 {
+  font-size: 24px;
+  color: white;
+}
+
+.preferences-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.preferences-list li {
+  font-size: 16px;
+  color: #ddd;
+}
+
+.edit-button, .save-button {
+  background-color: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.edit-button:hover, .save-button:hover {
+  background-color: #005bb5;
+}
+
+/* Main content area */
+.main-content {
+  margin-left: 250px; /* Push content to the right to leave space for the side menu */
+  padding: 20px;
+  width: calc(100% - 250px); /* Ensure the content takes the remaining space */
+}
+
+.welcome-message {
+  text-align: center;
+}
+
+.news-container {
+  margin-top: 20px;
+}
+
+.news-item {
+  margin-bottom: 20px;
+}
+
+.news-item h4 {
+  font-size: 22px;
+  color: #444;
+}
+
+.news-item p {
+  font-size: 16px;
+  color: #777;
+}
+
+.news-item a {
+  font-size: 16px;
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.news-item a:hover {
+  text-decoration: underline;
+}

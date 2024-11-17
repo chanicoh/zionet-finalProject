@@ -12,9 +12,9 @@ app.use(bodyParser.json());
 const cors = require('cors');
 
 app.use(cors({
-  origin: 'http://localhost:3000', // הגדרת כתובת הלקוח שלך
-  methods: ['GET', 'POST'],
-  allowedHeaders: ['Content-Type'], // אם אתה שולח כותרת Content-Type
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST','PUT'],
+  allowedHeaders: ['Content-Type'], 
 }));
 
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -26,17 +26,17 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
 let channel;
 async function connectRabbitMQ() {
   try {
-    const connection = await amqp.connect('amqp://guest:guest@rabbitmq:5672');  // חיבור ל-RabbitMQ
+    const connection = await amqp.connect('amqp://guest:guest@rabbitmq:5672');  
     channel = await connection.createChannel();
-    await channel.assertQueue('userQueue', { durable: true });  // יצירת תור בשם 'userQueue'
+    await channel.assertQueue('userQueue', { durable: true });  // 'userQueue'
     console.log('Connected to RabbitMQ');
   } catch (error) {
     console.error('Error connecting to RabbitMQ:', error);
   }
 }
-// קריאה ל-RabbitMQ בעת התחלת השרת
+
 connectRabbitMQ();
-// שליחת הודעה ל-RabbitMQ
+
 async function sendToQueue(message) {
   if (channel) {
     channel.sendToQueue('userQueue', Buffer.from(JSON.stringify(message)), { persistent: true });
@@ -73,8 +73,78 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// התחברות לבסיס נתונים MongoDB
+// Get Email of User (from database)
+app.get('/email', async (req, res) => {
+  const  {id}  = req.query;
+  
+  try {
+    const user = await User.findById(id);
+    if (user) {
+      res.status(200).json({ email: user.email });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+
+
+// Get Preferences of User
+app.get('/preferences', async (req, res) => {
+  const  {id}  = req.query;
+  
+  try {
+    const user = await User.findById(id);
+    if (user) {
+      res.status(200).json({ preferences: user.preferences });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+// Set Preferences of User
+app.put('/preferences', async (req, res) => {
+  const  {id}  = req.query;
+  const { preferences } = req.body;
+  
+  try {
+    const user = await User.findById(id );
+    if (user) {
+      user.preferences = preferences;
+      await user.save();
+      res.status(200).json({ message: 'Preferences updated successfully' });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+  }
+});
+//Get Name of User
+app.get('/name', async (req, res) => {
+  const  {id}  = req.query;
+  try {
+    const user = await User.findById(id);
+    if (user) {
+      res.status(200).json({ fullName: user.fullName });
+    } else {
+      res.status(404).json({ error: 'User not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Something went wrong' });
+    }
+});
+
+
+
+
+// connect toMongoDB
 mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+
 
 // התחלת השרת
 const port = process.env.PORT || 5000;

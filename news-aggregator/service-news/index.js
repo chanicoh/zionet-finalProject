@@ -1,64 +1,72 @@
 const express = require('express');
-const axios = require('axios'); // To fetch news
-const cors = require('cors');
-const amqp = require('amqplib'); // RabbitMQ module
-const bodyParser = require('body-parser');
+const axios = require('axios');
 require('dotenv').config();
 
 const app = express();
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// חיבור ל-RabbitMQ
-let channel;
-async function connectRabbitMQ() {
+const cors = require('cors');
+app.use(cors({
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST'],
+  allowedHeaders: ['Content-Type'], 
+}));
+
+const DAPR_HOST = process.env.DAPR_HOST || 'http://localhost';
+const DAPR_PORT = process.env.DAPR_PORT || 3500;
+const NEWS_API_KEY = process.env.NEWS_API_KEY;
+
+const daprUrl = `${DAPR_HOST}:${DAPR_PORT}/v1.0/invoke/service-user/method`;
+
+// Fetch user preferences from service-user
+async function getUserPreferences(email) {
   try {
-    const connection = await amqp.connect('amqp://guest:guest@rabbitmq:5672');  // חיבור ל-RabbitMQ
-    channel = await connection.createChannel();
-    await channel.assertQueue('newsQueue', { durable: true });  // יצירת תור בשם 'newsQueue'
-    console.log('Connected to RabbitMQ');
+    const response = await axios.get(`${daprUrl}/preferences`, {
+      params: { id: email }, // Updated to match the service-user's endpoint
+    });
+    return response.data.preferences;
   } catch (error) {
-    console.error('Error connecting to RabbitMQ:', error);
+    console.error('Error fetching user preferences:', error.response?.data || error.message);
+    throw new Error('Failed to retrieve user preferences');
   }
 }
-// קריאה ל-RabbitMQ בעת התחלת השרת
-connectRabbitMQ();
 
-// Function to fetch news based on user preferences
-const fetchNews = async (preferences) => {
-  const apiKey = process.env.NEWS_API_KEY; // Set your API key here
-  const url = `https://newsapi.org/v2/top-headlines?category=${preferences}&apiKey=${apiKey}`;
+// Fetch news based on preferences
+async function fetchNews(preferences) {
   try {
-    const response = await axios.get(url);
-    return response.data.articles;
+    const newsResponse = await axios.get(`https://newsapi.org/v2/top-headlines`, {
+      params: {
+        category: preferences.category, // Assumes `preferences` has a `category` field
+        apiKey: NEWS_API_KEY,
+      },
+    });
+    return newsResponse.data.articles;
   } catch (error) {
-    console.error('Error fetching news:', error);
-    throw new Error('Unable to fetch news');
+    console.error('Error fetching news:', error.response?.data || error.message);
+    throw new Error('Failed to fetch news');
   }
-};
-
-// שליחה ל-RabbitMQ
-async function sendToQueue(message) {
-    if (channel) {
-      channel.sendToQueue('newsQueue', Buffer.from(JSON.stringify(message)), { persistent: true });
-      console.log('Message sent to RabbitMQ:', message);
-    }
-  }
-  
+}
 
 // Endpoint to get news based on user preferences
-app.post('/get-news', async (req, res) => {
-  const { preferences } = req.body;
+app.post('/news', async (req, res) => {
+  const { email } = req.body; // Email is passed in the body for the request
+
   try {
+    // Get user preferences from service-user
+    const preferences = await getUserPreferences(email);
+
+    // Fetch news based on preferences
     const news = await fetchNews(preferences);
-    // שליחה ל-RabbitMQ לאחר קבלת החדשות
-    await sendToQueue({ type: 'newsFetched', news });
-    res.status(200).send(news);
+
+    // Return news to the client
+    res.status(200).json({ email, preferences, news });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error in /news endpoint:', error.message);
+    res.status(500).json({ error: 'An error occurred while processing the news request' });
   }
 });
 
+// Start server
 const port = process.env.PORT || 5001;
 app.listen(port, () => {
   console.log(`News Service listening on port ${port}`);
