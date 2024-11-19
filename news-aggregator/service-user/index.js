@@ -109,6 +109,7 @@ app.get('/preferences', async (req, res) => {
 app.put('/preferences', async (req, res) => {
   const  {id}  = req.query;
   const { preferences } = req.body;
+  console.log(preferences);
   
   try {
     const user = await User.findById(id );

@@ -7,17 +7,18 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-    
     networks:
-      - news-network
+      - network-dapr
+    
   rabbitmq:
     image: "rabbitmq:management"
     container_name: rabbitmq
     ports:
-      - "15672:15672"  # פור לממשק ניהול
-      - "5672:5672"    # פור לתקשורת עם השירותים
+      - "15672:15672"  
+      - "5672:5672" 
     networks:
-      - news-network
+      - network-dapr     
+   
 
   service-user:
     build: 
@@ -33,17 +34,19 @@ services:
       - mongodb
       - rabbitmq 
     networks:
-      - news-network
+      - network-dapr
+   
     labels:
       - "dapr.io/enabled=true"
       - "dapr.io/app-id=service-user"
       - "dapr.io/app-port=5000"
 
   dapr_user:
+    container_name: dapr_user
     image: "daprio/daprd:latest"
-    command: ["./daprd", "-app-id", "service-user", "-app-port", "5000"]
+    command: ["./daprd", "-app-id", "service-user", "-app-port", "5000","-dapr-http-port", "3500"]
     networks:
-      - news-network
+      - network-dapr 
     depends_on:
       - "service-user"
   
@@ -60,22 +63,41 @@ services:
       - rabbitmq 
       - service-user
     networks:
-      - news-network
+      - network-dapr 
+   
     labels:
       - "dapr.io/enabled=true"
       - "dapr.io/app-id=service-news"
       - "dapr.io/app-port=5001"
+    
   
   dapr_news:
+    container_name: dapr_news
     image: "daprio/daprd:latest"
-    command: ["./daprd", "-app-id", "service-user", "-app-port", "5001"]
+    command: ["./daprd", "-app-id", "service-news", "-app-port", "5001","-dapr-http-port", "3500"]
     depends_on:
       - service-news
     networks:
-      - news-network
-      
+      - network-dapr 
+
+  
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    ports:
+      - "3000:3000"
+    command: npm start
+     
+    depends_on:
+      - service-news
+      - service-user
+    networks:
+      - network-dapr 
+    
 networks:
-  news-network:
-    driver: bridge
+  network-dapr:
+
 volumes:
   mongo-data:

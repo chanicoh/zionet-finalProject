@@ -34,8 +34,7 @@ const NewsFeed = () => {
     async function fetchNews() {
       try {
         // Request to the news service based on preferences
-        const newsResponse = await axios.get(`http://localhost:5001/news`, {
-          params: { email }, // Sending user email to get news
+        const newsResponse = await axios.get(`http://localhost:5001/news`, {  params: { id: userId }, // Sending user id to get news
         });
         setNews(newsResponse.data.news);
       } catch (error) {
@@ -54,6 +53,7 @@ const NewsFeed = () => {
   const savePreferences = async () => {
     try {
       const updatedPreferences = [...preferences, newPreference];
+      console.log(updatedPreferences);
       await axios.put(`http://localhost:5000/preferences`, { preferences: updatedPreferences }, { params: { id: userId } });
       setPreferences(updatedPreferences);
       setNewPreference('');
