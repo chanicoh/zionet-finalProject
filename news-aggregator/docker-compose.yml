@@ -45,8 +45,7 @@ services:
     container_name: dapr_user
     image: "daprio/daprd:latest"
     command: ["./daprd", "-app-id", "service-user", "-app-port", "5000","-dapr-http-port", "3500"]
-    networks:
-      - network-dapr 
+    network_mode: "service:service-user"
     depends_on:
       - "service-user"
   
@@ -61,7 +60,6 @@ services:
       - NEWS_API_KEY=b684b5f306a242509e3524c91089b088 # המפתח שלך לשירות NewsAPI
     depends_on:
       - rabbitmq 
-      - service-user
     networks:
       - network-dapr 
    
@@ -77,8 +75,33 @@ services:
     command: ["./daprd", "-app-id", "service-news", "-app-port", "5001","-dapr-http-port", "3500"]
     depends_on:
       - service-news
+    network_mode: "service:service-news" 
+
+  service-notification:
+    build:
+      context: ./service-notification
+      dockerfile: Dockerfile
+    container_name: service-notification
+    ports:
+      - "5002:5002"
+    depends_on:
+      - rabbitmq 
     networks:
       - network-dapr 
+   
+    labels:
+      - "dapr.io/enabled=true"
+      - "dapr.io/app-id=service-notification"
+      - "dapr.io/app-port=5002"
+    
+  
+  dapr_notification:
+    container_name: dapr_notification
+    image: "daprio/daprd:latest"
+    command: ["./daprd", "-app-id", "service-notification", "-app-port", "5002","-dapr-http-port", "3500"]
+    depends_on:
+      - service-notification
+    network_mode: "service:service-notification"
 
   
   client:
@@ -98,6 +121,7 @@ services:
     
 networks:
   network-dapr:
+    driver: bridge
 
 volumes:
   mongo-data:

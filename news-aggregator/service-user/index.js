@@ -1,13 +1,13 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const amqp = require('amqplib');//
+const amqp = require('amqplib');
 const User = require('./models/user');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.json());
 
 const cors = require('cors');
 
@@ -22,7 +22,6 @@ mongoose.connect(process.env.MONGODB_URI, { useNewUrlParser: true, useUnifiedTop
   .catch(err => console.error('Could not connect to MongoDB...', err));
 
 
-  // חיבור ל-RabbitMQ
 let channel;
 async function connectRabbitMQ() {
   try {
@@ -34,13 +33,12 @@ async function connectRabbitMQ() {
     console.error('Error connecting to RabbitMQ:', error);
   }
 }
-
 connectRabbitMQ();
 
-async function sendToQueue(message) {
+async function sendToQueue(queue,message) {
   if (channel) {
-    channel.sendToQueue('userQueue', Buffer.from(JSON.stringify(message)), { persistent: true });
-    console.log('Message sent to RabbitMQ:', message);
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), { persistent: true });
+    console.log(`Message sent to RabbitMQ: ${message}`);
   }
 }
 
@@ -53,7 +51,7 @@ app.post('/register', async (req, res) => {
 
   try {
     await user.save();
-    await sendToQueue({ type: 'userRegistered', user });//
+    await sendToQueue('userQueue', { type: 'userRegistered', user });
     res.status(201).send(user);
   } catch (error) {
     res.status(400).json({ error: 'The email already exists in the system' }); // שליחת הודעת שגיאה בצורת JSON
@@ -66,7 +64,7 @@ app.post('/login', async (req, res) => {
   const user = await User.findOne({ email });
   
   if (user && await bcrypt.compare(password, user.password)) {
-    await sendToQueue({ type: 'userLoggedIn', user });//
+    await sendToQueue('userQueue',{ type: 'userLoggedIn', user });//
     res.send(user);
   } else {
     res.status(401).json({ error: 'The email or password is incorrect' }); // שליחת שגיאה עם פירוט בצורת JSON
@@ -93,6 +91,7 @@ app.get('/email', async (req, res) => {
 // Get Preferences of User
 app.get('/preferences', async (req, res) => {
   const  {id}  = req.query;
+  console.log("id:",id);
   
   try {
     const user = await User.findById(id);
@@ -116,6 +115,7 @@ app.put('/preferences', async (req, res) => {
     if (user) {
       user.preferences = preferences;
       await user.save();
+      await sendToQueue('userQueue', { type: 'preferencesUpdated', user });
       res.status(200).json({ message: 'Preferences updated successfully' });
     } else {
       res.status(404).json({ error: 'User not found' });
