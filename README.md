@@ -33,7 +33,7 @@ The Personalized News Update Aggregator is a microservice-based system designed 
    ```
 5. Start the application using Docker Compose:
    ```bash
-   docker-compose up --build
+   docker-compose up --build 
    ```
 
 
