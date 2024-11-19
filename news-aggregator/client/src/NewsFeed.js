@@ -34,8 +34,7 @@ const NewsFeed = () => {
     async function fetchNews() {
       try {
         // Request to the news service based on preferences
-        const newsResponse = await axios.get(`http://localhost:5001/news`, {  params: { id: userId }, // Sending user id to get news
-        });
+        const newsResponse = await axios.post(`http://localhost:5001//fetch-news`, {  params: { id: userId },  });// Sending user id to get news
         setNews(newsResponse.data.news);
       } catch (error) {
         console.error("Error fetching news:", error);
