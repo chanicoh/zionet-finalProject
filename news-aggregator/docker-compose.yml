@@ -1,25 +1,5 @@
 
 services:
-  mongodb:
-    image: mongo 
-    container_name: mongodb
-    ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    networks:
-      - network-dapr
-    
-  rabbitmq:
-    image: "rabbitmq:management"
-    container_name: rabbitmq
-    ports:
-      - "15672:15672"  
-      - "5672:5672" 
-    networks:
-      - network-dapr     
-   
-
   service-user:
     build: 
       context: ./service-user
@@ -35,7 +15,6 @@ services:
       - rabbitmq 
     networks:
       - network-dapr
-   
     labels:
       - "dapr.io/enabled=true"
       - "dapr.io/app-id=service-user"
@@ -44,7 +23,7 @@ services:
   dapr_user:
     container_name: dapr_user
     image: "daprio/daprd:latest"
-    command: ["./daprd", "-app-id", "service-user", "-app-port", "5000","-dapr-http-port", "3500"]
+    command: ["./daprd", "-app-id", "service-user", "-app-port", "5000","-app-protocol", "http","-dapr-http-port", "3500"]
     network_mode: "service:service-user"
     depends_on:
       - "service-user"
@@ -72,7 +51,7 @@ services:
   dapr_news:
     container_name: dapr_news
     image: "daprio/daprd:latest"
-    command: ["./daprd", "-app-id", "service-news", "-app-port", "5001","-dapr-http-port", "3500"]
+    command: ["./daprd", "-app-id", "service-news", "-app-port", "5001","-app-protocol", "http","-dapr-http-port", "3500"]
     depends_on:
       - service-news
     network_mode: "service:service-news" 
@@ -98,11 +77,30 @@ services:
   dapr_notification:
     container_name: dapr_notification
     image: "daprio/daprd:latest"
-    command: ["./daprd", "-app-id", "service-notification", "-app-port", "5002","-dapr-http-port", "3500"]
+    command: ["./daprd", "-app-id", "service-notification", "-app-port", "5002","-app-protocol", "http","-dapr-http-port", "3500"]
     depends_on:
       - service-notification
     network_mode: "service:service-notification"
-
+  
+  mongodb:
+    image: mongo 
+    container_name: mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - network-dapr
+    
+  rabbitmq:
+    image: "rabbitmq:management"
+    container_name: rabbitmq
+    ports:
+      - "15672:15672"  
+      - "5672:5672" 
+    networks:
+      - network-dapr     
+  
   
   client:
     build:

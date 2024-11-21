@@ -10,7 +10,7 @@ The Personalized News Update Aggregator is a microservice-based system designed 
 ## **Technologies Used**
 
 - **Backend**: Node.js  
-- **Frontend (Optional)**: React  
+- **Frontend**: React  
 - **Database**: MongoDB  
 - **Message Queue**: RabbitMQ  
 - **Containerization**: Docker, Docker Compose  

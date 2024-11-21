@@ -91,7 +91,6 @@ app.get('/email', async (req, res) => {
 // Get Preferences of User
 app.get('/preferences', async (req, res) => {
   const  {id}  = req.query;
-  console.log("id:",id);
   
   try {
     const user = await User.findById(id);

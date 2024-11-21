@@ -7,12 +7,13 @@ const NewsFeed = () => {
   const location = useLocation();
   const { userId } = location.state || {}; // userId from the navigation state
   const [email, setUserEmail] = useState('');
-  const [preferences, setPreferences] = useState([]);
+  const [preferences, setPreferences] =useState([]);
   const [news, setNews] = useState([]);
   const [fullName, setFullName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [newPreference, setNewPreference] = useState('');
   const [showMenu, setShowMenu] = useState(false); // State for toggling the side menu
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchUserDetails() {
@@ -34,24 +35,29 @@ const NewsFeed = () => {
     async function fetchNews() {
       try {
         // Request to the news service based on preferences
-        const newsResponse = await axios.post(`http://localhost:5001//fetch-news`, {  params: { id: userId },  });// Sending user id to get news
-        setNews(newsResponse.data.news);
+        const newsResponse = await axios.post(`http://localhost:5001/fetch-news`, {  params: { id: userId },  });// Sending user id to get news
+        setNews(newsResponse.data.summarizedNews);
+        console.log(newsResponse.data.summarizedNews);
       } catch (error) {
         console.error("Error fetching news:", error);
       }
     }
 
     if (userId) {
-      fetchUserDetails().then(() => {
-        // Fetch news after user details are fetched
-        fetchNews();
+      fetchUserDetails();
+      fetchNews().then(() => {
+        setLoading(false); 
       });
     }
   }, [userId, email]);
 
+  
+
   const savePreferences = async () => {
     try {
-      const updatedPreferences = [...preferences, newPreference];
+      const filteredPreferences = preferences.filter(pref => pref.trim() !== "");
+      const updatedPreferences = [...filteredPreferences, newPreference.trim()].filter(pref => pref !== "");
+      //const updatedPreferences = [...preferences, newPreference];
       console.log(updatedPreferences);
       await axios.put(`http://localhost:5000/preferences`, { preferences: updatedPreferences }, { params: { id: userId } });
       setPreferences(updatedPreferences);
@@ -78,7 +84,7 @@ const NewsFeed = () => {
           {!isEditing ? (
             <div>
               <ul className="preferences-list">
-                {preferences.length > 0 ? (
+                {preferences &&preferences.length > 0 ? (
                   preferences.map((preference, index) => (
                     <li key={index}>{preference}</li>
                   ))
@@ -118,19 +124,14 @@ const NewsFeed = () => {
       </div>
 
       {/* Main content area */}
-      <div className="main-content">
-        <div className="welcome-message">
-          <h2>Welcome, {fullName}!</h2>
-        </div>
-
+      <div className="main-content"> 
         <div className="news-container">
           <h2>Latest News Based on Your Preferences</h2>
-          {news.length > 0 ? (
+          {news &&news.length > 0 ? (
             news.map((article, index) => (
               <div key={index} className="news-item">
                 <h4>{article.title}</h4>
-                <p>{article.description}</p>
-                <a href={article.url} target="_blank" rel="noopener noreferrer">Read more</a>
+                <a href={article.link} target="_blank" rel="noopener noreferrer">Read more</a>
               </div>
             ))
           ) : (

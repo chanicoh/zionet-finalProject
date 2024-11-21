@@ -90,25 +90,26 @@ button:hover {
 
 /* NewsFeed.css */
 
-/* Container for the entire page layout */
+
 .news-feed-container {
   display: flex;
   padding: 20px;
   justify-content: space-between;
 }
 
-/* User Info Section */
+
 .user-info {
   flex: 1;
   padding-right: 20px;
   border-right: 1px solid #ccc;
+  padding-top: 20px;
 }
 
 .user-info h3 {
   font-size: 24px;
-  color: #333;
+  color: white;
+  padding-top: 20px;
 }
-
 .user-info p {
   font-size: 16px;
   color: #555;
@@ -155,7 +156,6 @@ input[type="text"] {
   background-color: #f5f5f5;
 }
 
-/* Header with Welcome message */
 .header {
   text-align: center;
 }
@@ -164,7 +164,7 @@ input[type="text"] {
   font-size: 24px;
   color: #333;
 }
-/* General layout */
+
 .news-feed-container {
   display: flex;
   height: 100vh;
@@ -182,7 +182,7 @@ input[type="text"] {
 .side-menu {
   position: fixed;
   top: 0;
-  left: -250px; /* Hide menu initially */
+  left: -250px; 
   width: 250px;
   height: 100%;
   background-color: #333;
@@ -196,10 +196,7 @@ input[type="text"] {
   left: 0; /* Show menu when open */
 }
 
-.user-info h3 {
-  font-size: 24px;
-  color: white;
-}
+
 
 .preferences-list {
   list-style-type: none;
@@ -224,16 +221,13 @@ input[type="text"] {
   background-color: #005bb5;
 }
 
-/* Main content area */
+
 .main-content {
-  margin-left: 250px; /* Push content to the right to leave space for the side menu */
+  margin-left: 250px;
   padding: 20px;
-  width: calc(100% - 250px); /* Ensure the content takes the remaining space */
+  width: calc(100% - 250px); 
 }
 
-.welcome-message {
-  text-align: center;
-}
 
 .news-container {
   margin-top: 20px;
