@@ -127,7 +127,7 @@ button:hover {
 }
 
 .edit-button, .save-button {
-  background-color: #0066cc;
+  background-color: #4CAF50;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -209,7 +209,7 @@ input[type="text"] {
 }
 
 .edit-button, .save-button {
-  background-color: #0066cc;
+  background-color: #4CAF50;
   color: white;
   border: none;
   padding: 10px 15px;
@@ -218,41 +218,62 @@ input[type="text"] {
 }
 
 .edit-button:hover, .save-button:hover {
-  background-color: #005bb5;
+  background-color: #45a049;
 }
 
 
-.main-content {
-  margin-left: 250px;
-  padding: 20px;
-  width: calc(100% - 250px); 
+
+/* עיצוב עוטף החלק של החדשות */
+.news-wrapper {
+  display: flex;
+  justify-content: center; /* מרכז את div החדשות */
+  align-items: center; /* מרכז אנכית */
+  height: 100vh; /* גובה כל הדף */
+  background-color: #f9f9f9; /* רקע אפור בהיר */
 }
 
-
+/* עיצוב החלק שמכיל את החדשות */
 .news-container {
-  margin-top: 20px;
+  width: 60%; /* קובע את רוחב החלק */
+  max-height: 80%; /* מגביל את הגובה */
+  overflow-y: auto; /* מאפשר גלילה רק לחלק הזה */
+  padding: 20px;
+  background-color: white; /* רקע לבן */
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* צל עדין */
+  border-radius: 10px; /* פינות מעוגלות */
 }
 
+/* עיצוב כל פריט חדשות */
 .news-item {
   margin-bottom: 20px;
 }
 
 .news-item h4 {
-  font-size: 22px;
+  font-size: 15px;
   color: #444;
 }
 
-.news-item p {
-  font-size: 16px;
-  color: #777;
-}
-
 .news-item a {
-  font-size: 16px;
-  color: #0066cc;
+  font-size: 10px;
+  color: #4CAF50;
   text-decoration: none;
 }
 
 .news-item a:hover {
   text-decoration: underline;
+}
+
+/* עיצוב כפתור טעינת חדשות נוספות */
+.load-more-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.load-more-button:hover {
+  background-color: #45a049;
 }

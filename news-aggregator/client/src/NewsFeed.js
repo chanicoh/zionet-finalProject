@@ -14,6 +14,7 @@ const NewsFeed = () => {
   const [newPreference, setNewPreference] = useState('');
   const [showMenu, setShowMenu] = useState(false); // State for toggling the side menu
   const [loading, setLoading] = useState(true);
+  const [newsToShow, setNewsToShow] = useState(5);
 
   useEffect(() => {
     async function fetchUserDetails() {
@@ -51,6 +52,9 @@ const NewsFeed = () => {
     }
   }, [userId, email]);
 
+  const loadMoreNews = () => {
+    setNewsToShow(newsToShow + 5); // טוען 5 כותרות נוספות
+  };
   
 
   const savePreferences = async () => {
@@ -123,22 +127,27 @@ const NewsFeed = () => {
         </div>
       </div>
 
-      {/* Main content area */}
-      <div className="main-content"> 
-        <div className="news-container">
-          <h2>Latest News Based on Your Preferences</h2>
-          {news &&news.length > 0 ? (
-            news.map((article, index) => (
-              <div key={index} className="news-item">
-                <h4>{article.title}</h4>
-                <a href={article.link} target="_blank" rel="noopener noreferrer">Read more</a>
-              </div>
-            ))
-          ) : (
-            <p>No news available.</p>
-          )}
-        </div>
-      </div>
+      <div className="news-wrapper">
+  <div className="news-container">
+    <h2>Latest News Based on Your Preferences</h2>
+    {loading ? (
+      <p>Loading...</p> // הצגת סימולציה של טעינה
+    ) : (
+      <>
+        {news.slice(0, newsToShow).map((article, index) => (
+          <div key={index} className="news-item">
+            <h4>{article.title}</h4>
+            <a href={article.link} target="_blank" rel="noopener noreferrer">Read more</a>
+          </div>
+        ))}
+        {newsToShow < news.length && (
+          <button className="load-more-button" onClick={loadMoreNews}>Load More</button> // כפתור להטעין עוד
+        )}
+      </>
+    )}
+  </div>
+</div>
+
     </div>
   );
 };

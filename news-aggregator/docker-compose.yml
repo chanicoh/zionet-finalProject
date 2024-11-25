@@ -102,20 +102,7 @@ services:
       - network-dapr     
   
   
-  client:
-    build:
-      context: ./client
-      dockerfile: Dockerfile
-    container_name: client
-    ports:
-      - "3000:3000"
-    command: npm start
-     
-    depends_on:
-      - service-news
-      - service-user
-    networks:
-      - network-dapr 
+ 
     
 networks:
   network-dapr:
