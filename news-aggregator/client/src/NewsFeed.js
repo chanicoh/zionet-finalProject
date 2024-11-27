@@ -9,6 +9,7 @@ const NewsFeed = () => {
   const [email, setUserEmail] = useState('');
   const [preferences, setPreferences] =useState([]);
   const [news, setNews] = useState([]);
+  const [emailNews, setEmailNews] = useState([]);
   const [fullName, setFullName] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [newPreference, setNewPreference] = useState('');
@@ -27,6 +28,7 @@ const NewsFeed = () => {
         setFullName(nameResponse.data.fullName);
 
         const preferencesResponse = await axios.get(`http://localhost:5000/preferences`, { params: { id: userId } });
+        console.log(preferencesResponse.data.preferences);
         setPreferences(preferencesResponse.data.preferences);
       } catch (error) {
         console.error("Error fetching user details:", error);
@@ -38,7 +40,14 @@ const NewsFeed = () => {
         // Request to the news service based on preferences
         const newsResponse = await axios.post(`http://localhost:5001/fetch-news`, {  params: { id: userId },  });// Sending user id to get news
         setNews(newsResponse.data.summarizedNews);
-        console.log(newsResponse.data.summarizedNews);
+        const responeEmail = await axios.post(`http://localhost:5002/send-email`, {  params: { email: email },
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: newsResponse.data.summarizedNews,  });
+          console.log(responeEmail.data);
+          setEmailNews(responeEmail.data);
       } catch (error) {
         console.error("Error fetching news:", error);
       }
@@ -130,6 +139,7 @@ const NewsFeed = () => {
       <div className="news-wrapper">
   <div className="news-container">
     <h2>Latest News Based on Your Preferences</h2>
+    <h2>{emailNews}</h2>
     {loading ? (
       <p>Loading...</p> // הצגת סימולציה של טעינה
     ) : (

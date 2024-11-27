@@ -18,7 +18,7 @@ let channel;
 
 async function connectRabbitMQ() {
   try {
-    const connection = await amqp.connect('amqp://guest:guest@rabbitmq:5672');
+    const connection = await amqp.connect('amqp://localhost');
     channel = await connection.createChannel();
     await channel.assertQueue('newsQueue', { durable: true });
     console.log('Connected to RabbitMQ');
@@ -30,7 +30,7 @@ connectRabbitMQ();
 
 async function sendToQueue(queue, message) {
   if (channel) {
-    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)), { persistent: true });
+    channel.sendToQueue(queue, Buffer.from(JSON.stringify(message)));
     console.log(`News sent to RabbitMQ: ${message}`);
   }
 }
@@ -40,7 +40,7 @@ const DAPR_PORT = process.env.DAPR_PORT || 3500;
 const NEWS_API_KEY = process.env.NEWS_API_KEY;
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-//const daprUrl = `${DAPR_HOST}:${DAPR_PORT}/v1.0/invoke/service-user/method/preferences`;
+//const daprUrl = `${DAPR_HOST}:${DAPR_PORT}/v1.0/invoke/service-user/method/preferences`;//get the preferences by the dapr
 
 // Endpoint to get news based on user preferences
 // איסוף חדשות
@@ -48,7 +48,9 @@ app.post('/fetch-news', async (req, res) => {
   const { userId } = req.query;
   
   try {
-    const preferences = /*preferencesResponse.data.preferences||*/'Technology';
+
+    const preferences =/*await axios.get(`http://localhost:5000/preferences`, { params: { id: userId } }); preferencesResponse.data.preferences||*/'Technology';
+    //console.log(preferences.data.preferences);
     const newsArticles = await fetchArticles(preferences);
     const summarizedNews = await createNewsSummaries(newsArticles);
     /*const preferencesResponse = await axios.get(`${DAPR_HOST}:${DAPR_PORT}/v1.0/invoke/service-user/method/preferences`,
@@ -64,8 +66,10 @@ app.post('/fetch-news', async (req, res) => {
 
 
 async function fetchArticles(preferences) {
-      const preferencesapi = preferences;
-      const apiUrl = `https://newsdata.io/api/1/latest?apikey=pub_59894c085bd72389bac1a949ae685381498b8&q=${preferencesapi}`;
+   const preferencesApi = Array.isArray(preferences) 
+   ? preferences.join(',') // אם זה מערך, חיבור לערכים במחרוזת אחת
+   : preferences; // אם זה ערך בודד, השתמש בו ישירות
+      const apiUrl = `https://newsdata.io/api/1/latest?apikey=pub_59894c085bd72389bac1a949ae685381498b8&q=${preferencesApi}`;
 
   try {
       const response = await axios.get(apiUrl);

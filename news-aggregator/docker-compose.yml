@@ -39,6 +39,7 @@ services:
       - NEWS_API_KEY=b684b5f306a242509e3524c91089b088 # המפתח שלך לשירות NewsAPI
     depends_on:
       - rabbitmq 
+      - service-user
     networks:
       - network-dapr 
    
@@ -101,7 +102,21 @@ services:
     networks:
       - network-dapr     
   
-  
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: client
+    ports:
+      - "3000:3000"
+    command: npm start
+     
+    depends_on:
+      - service-news
+      - service-user
+      - service-notification
+    networks:
+      - network-dapr 
  
     
 networks:
