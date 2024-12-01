@@ -36,5 +36,12 @@ The Personalized News Update Aggregator is a microservice-based system designed 
    docker-compose up --build
    
    ```
+6. see the client:
+   ```bash
+   http://localhost:3000
+   
+   ```
+
+ 
 
 
